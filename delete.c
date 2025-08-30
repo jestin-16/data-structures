@@ -10,18 +10,18 @@ void main(){
     }
     printf("\n enter the element to delete");
     scanf("%d",&el);
+    printf("\n the array before deletion ");
+        for(i=0;i<n;i++){
+            printf("\t %d",a[i]);
+        }
     for(i=0;i<n;i++){
         if(a[i]==el){
-            for(int j=i;j<n;j++){
-                a[i]=a[j+1];
-            }
             n--;
+            break;
         }
-        else {
-            /* code here */ 
-            continue;
-        }
-        printf("the array after deletion ");
+       for(;i<n;i++)
+       a[i]=a[i+1];
+        printf("\n the array after deletion ");
         for(i=0;i<n;i++){
             printf("\t %d",a[i]);
         }
