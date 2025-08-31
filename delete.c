@@ -19,11 +19,13 @@ void main(){
             n--;
             break;
         }
-       for(;i<n;i++)
+      
+    }
+     for(;i<n-1;i++)
        a[i]=a[i+1];
+    
         printf("\n the array after deletion ");
         for(i=0;i<n;i++){
             printf("\t %d",a[i]);
         }
-    }
 }
