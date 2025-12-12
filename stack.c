@@ -20,7 +20,7 @@ void push(struct Stack *s) {
     } else {
         int el;
         printf("\nEnter the element: ");
-        scanf("%d", &el);
+        scanf("%d", &el);`
         s->stack[++(s->top)] = el;
     }
 }

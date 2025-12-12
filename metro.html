@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kochi Metro Fleet Operations Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Kochi Metro & Kerala Inspired Color Palette */
+        :root {
+            --kmrl-blue-dark: #0A3D62;      /* Deep Metro Blue */
+            --kmrl-blue-light: #0F5E9B;     /* Lighter Metro Blue */
+            --kerala-gold: #D4AF37;         /* Traditional Gold (Kasavu border) */
+            --kerala-green: #006400;        /* Deep Forest Green (Lush landscapes) */
+            --kerala-bg-cream: #FDFCEE;     /* Kasavu Cream (Primary background) */
+            --kerala-text-dark: #333333;    /* Dark text for readability */
+            --kerala-text-light: #777777;   /* Lighter text for details */
+            
+            /* Status Colors */
+            --status-ready: #28A745;        /* Green for Ready */
+            --status-standby: #FFC107;      /* Amber for Standby */
+            --status-maintenance: #DC3545;  /* Red for Maintenance */
+            
+            --card-bg: #FFFFFF;
+            --border-color: #ECEFF1;
+            
+            --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            --transition-speed: 0.3s;
+        }
+
+        /* General Body Styles with subtle texture */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--kerala-bg-cream);
+            margin: 0;
+            padding: 30px;
+            color: var(--kerala-text-dark);
+            /* ENHANCEMENT: Replaced generic gradient with a subtle woven mat (paaya) texture */
+            background-image:
+                linear-gradient(45deg, rgba(0,0,0,0.015) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.015) 75%, rgba(0,0,0,0.015) 100%),
+                linear-gradient(-45deg, rgba(0,0,0,0.015) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.015) 75%, rgba(0,0,0,0.015) 100%);
+            background-size: 8px 8px;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 2px solid var(--kerala-gold); /* Gold divider */
+        }
+
+        .dashboard-header .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Logo Image Container */
+        .dashboard-header .logo-img {
+            height: 50px; /* Adjust height as needed */
+            margin-right: 15px;
+        }
+
+        .dashboard-header .logo h1 {
+            font-family: 'Merriweather', serif; /* More traditional, strong font */
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--kmrl-blue-dark);
+            margin: 0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .dashboard-header .logo h1 span {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--kerala-text-light);
+            display: block;
+            margin-top: 5px;
+        }
+
+        /* Dashboard Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 25px;
+        }
+
+        @media (min-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 2fr 1fr; /* Main content wider on larger screens */
+            }
+        }
+        
+        /* Card Styling */
+        .card {
+            background-color: var(--card-bg);
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: var(--box-shadow);
+            transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color); /* Subtle border for definition */
+            /* ENHANCEMENT: Added a green top border to reflect Kerala's lush landscapes */
+            border-top: 5px solid var(--kerala-green);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-title {
+            font-family: 'Merriweather', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--kmrl-blue-dark);
+            border-bottom: 3px solid var(--kerala-gold); /* Gold underliner for titles */
+            padding-bottom: 15px;
+            margin-bottom: 28px;
+            text-transform: capitalize;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 20px;
+            text-align: center;
+        }
+
+        .metric {
+            background-color: var(--kerala-bg-cream);
+            padding: 25px 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .metric::before { /* Subtle geometric pattern in metrics */
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.05) 75%, rgba(255,255,255,0.05) 100%),
+                linear-gradient(-45deg, rgba(255,255,255,0.05) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.05) 75%, rgba(255,255,255,0.05) 100%);
+            background-size: 20px 20px;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .metric:hover {
+            background-color: #F8F4E6; /* Slightly darker cream on hover */
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .metric h3 {
+            font-family: 'Roboto', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1;
+            color: var(--kmrl-blue-dark); /* Default metric color */
+        }
+        
+        .metric p {
+            font-size: 0.95rem;
+            color: var(--kerala-text-light);
+            margin: 8px 0 0 0;
+            line-height: 1.2;
+        }
+
+        /* Specific metric colors for numbers */
+        .metric.ready h3 { color: var(--status-ready); }
+        .metric.standby h3 { color: var(--status-standby); }
+        .metric.maintenance h3 { color: var(--status-maintenance); }
+        .metric.kpi h3 { color: var(--kerala-green); } /* KPI in green */
+
+        /* List Containers */
+        .list-container {
+            margin-top: 28px;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed var(--border-color); /* Dashed separator */
+        }
+
+        .list-header h3 {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin: 0;
+            color: var(--kmrl-blue-dark);
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-content h4 {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin: 0 0 5px 0;
+            color: var(--kerala-text-dark);
+        }
+
+        .item-content p {
+            font-size: 0.95rem;
+            margin: 0;
+            color: var(--kerala-text-light);
+            line-height: 1.4;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 9px 18px;
+            border-radius: 25px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: white;
+            white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .status-badge.ready { background-color: var(--status-ready); }
+        .status-badge.standby { background-color: var(--status-standby); }
+        .status-badge.maintenance { background-color: var(--status-maintenance); }
+        
+        /* Alert Box */
+        .alert-box {
+            background-color: #FEF9E7; /* Slightly richer cream */
+            border-left: 5px solid var(--kerala-gold);
+            padding: 20px 20px 20px 50px; /* Increased left padding for icon */
+            border-radius: 10px;
+            margin-bottom: 28px;
+            color: #6D4C0A;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            position: relative; /* Needed for pseudo-element positioning */
+        }
+
+        /* ENHANCEMENT: Added a notification icon for better visual cue */
+        .alert-box::before {
+            content: '!';
+            font-family: 'Merriweather', serif;
+            font-weight: 700;
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            background-color: var(--kerala-gold);
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        .alert-box strong {
+            color: #C07F00; /* Darker gold for emphasis */
+            font-weight: 700;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background-color var(--transition-speed) ease, transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background-color: var(--kmrl-blue-dark);
+            color: var(--card-bg);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--kmrl-blue-light);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-secondary {
+            background-color: var(--kerala-gold);
+            color: var(--kmrl-blue-dark);
+        }
+
+        .btn-secondary:hover {
+            background-color: #E8B428; /* Slightly darker gold */
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+            /* ENHANCEMENT: Added a border to make the interaction more prominent */
+            border: 2px solid var(--kmrl-blue-dark);
+            padding: 13px 28px; /* Adjusted padding to account for the new border */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 767px) {
+            body { padding: 15px; }
+            .dashboard-header { flex-direction: column; align-items: flex-start; }
+            .dashboard-header .logo { margin-bottom: 15px; }
+            .btn-group { flex-direction: column; }
+            .dashboard-header .logo h1 { font-size: 2rem; }
+            .dashboard-header .logo h1 span { font-size: 0.9rem; }
+            .card { padding: 25px; }
+            .card-title { font-size: 1.5rem; }
+            .metric h3 { font-size: 2.2rem; }
+            .list-header h3 { font-size: 1.2rem; }
+            .list-item { flex-direction: column; align-items: flex-start; }
+            .status-badge { margin-top: 10px; }
+            .btn { padding: 12px 20px; font-size: 0.95rem; }
+            .btn-secondary:hover { padding: 10px 18px; } /* Adjust hover padding for mobile */
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="dashboard-header">
+    <div class="logo">
+        <img src="https://s3-ap-south-1.amazonaws.com/kmrldata/wp-content/uploads/2022/08/12105259/KMRL-logo-300x165.gif" alt="Kochi Metro Rail Limited Logo" class="logo-img">
+        <div>
+            <h1>KOCHI METRO</h1>
+            <span>Fleet Operations Center</span>
+        </div>
+    </div>
+    <div>
+        <span style="font-size: 0.95rem; color: var(--kerala-text-light);">Last Updated: 21:30 IST</span>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+
+    <div class="card" style="grid-column: 1 / -1;">
+        <div class="card-title">Fleet Status & Availability</div>
+        <div class="metrics-grid">
+            <div class="metric ready">
+                <h3 >18</h3>
+                <p>Ready for Service</p>
+            </div>
+            <div class="metric standby">
+                <h3>4</h3>
+                <p>On Standby</p>
+            </div>
+            <div class="metric maintenance">
+                <h3>3</h3>
+                <p>In Maintenance (IBL)</p>
+            </div>
+            <div class="metric kpi">
+                <h3>99.6%</h3>
+                <p>Punctuality KPI</p>
+            </div>
+            <div class="metric kpi">
+                <h3>85%</h3>
+                <p>Mileage Balanced</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Optimal Induction Plan</div>
+        <div class="alert-box">
+            <p><strong>Heads Up:</strong> A new Telecom clearance just came in for Rake #115. Plan has been updated.</p>
+        </div>
+        <div class="list-container">
+            <div class="list-header">
+                <h3>Recommended Assignments</h3>
+            </div>
+            <ul>
+                <li class="list-item">
+                    <div class="item-content">
+                        <h4>Train Rake #104</h4>
+                        <p>High branding priority, low mileage. All clearances valid.</p>
+                    </div>
+                    <span class="status-badge ready">Service</span>
+                </li>
+                <li class="list-item">
+                    <div class="item-content">
+                        <h4>Train Rake #115</h4>
+                        <p>Newly cleared by Telecom. Optimal for morning turn-out.</p>
+                    </div>
+                    <span class="status-badge ready">Service</span>
+                </li>
+                <li class="list-item">
+                    <div class="item-content">
+                        <h4>Train Rake #109</h4>
+                        <p>Mileage balancing priority. Good stabling position.</p>
+                    </div>
+                    <span class="status-badge ready">Service</span>
+                </li>
+                <li class="list-item">
+                    <div class="item-content">
+                        <h4>Train Rake #105</h4>
+                        <p>Scheduled for deep cleaning tomorrow. Place on standby.</p>
+                    </div>
+                    <span class="status-badge standby">Standby</span>
+                </li>
+            </ul>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary">Generate New Plan</button>
+            <button class="btn btn-secondary">Run "What-If" Scenario</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Active Maintenance & Alerts</div>
+        <div class="list-container">
+            <div class="list-header">
+                <h3>Priority Issues (Maximo)</h3>
+            </div>
+            <ul>
+                <li class="list-item">
+                    <div class="item-content">
+                        <h4>Train Rake #112</h4>
+                        <p><strong>Job Card:</strong> MO-4567 (Bogie Inspection). Open since 18:30 IST.</p>
+                    </div>
+                    <span class="status-badge maintenance">In Bay</span>
+                </li>
+                <li class="list-item">
+                    <div class="item-content">
+                        <h4>Train Rake #107</h4>
+                        <p><strong>Job Card:</strong> MO-4568 (HVAC Service). Open. Scheduled for bay 2.</p>
+                    </div>
+                    <span class="status-badge maintenance">In Bay</span>
+                </li>
+                <li class="list-item">
+                    <div class="item-content">
+                        <h4>Train Rake #103</h4>
+                        <p><strong>Alert:</strong> Mileage threshold reached (12,000km). Requires brake inspection.</p>
+                    </div>
+                    <span class="status-badge standby">Standby</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
