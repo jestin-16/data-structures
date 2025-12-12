@@ -21,4 +21,5 @@ void main()
     printf("\n the array after sort is ");
     for(i=0;i<n;i++)
     printf("\t %d",a[i]);
+
 }
